@@ -1,0 +1,3 @@
+Detect faces in images/video and estimate at least two attributes per face (e.g., approximate age range, gender probability)
+Suggested datasets Your own short video (consented), or public samples (e.g., YouTube clips with permissive licenses)
+Check UTKFace for inspiration on Kaggle
