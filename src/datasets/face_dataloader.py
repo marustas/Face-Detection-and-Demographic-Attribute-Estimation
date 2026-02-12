@@ -12,13 +12,12 @@ class WiderFaceDetectionDataset:
 
     def __init__(
         self,
-        root: str,
         split: str = "val",
         download: bool = True,
         max_samples: int = None,
     ):
         self.dataset = WIDERFace(
-            root=root,
+            root="data",
             split=split,
             download=download,
             transform=transforms.ToTensor(),
@@ -36,6 +35,7 @@ class WiderFaceDetectionDataset:
         image_tensor, target = self.dataset[idx]
 
         image_np = image_tensor.permute(1, 2, 0).numpy()
+        image_np = (image_np * 255).clip(0, 255).astype("uint8")
 
         bboxes = target["bbox"]
 

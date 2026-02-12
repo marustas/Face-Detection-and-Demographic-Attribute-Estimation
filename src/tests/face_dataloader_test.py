@@ -4,7 +4,6 @@ from src.datasets.face_dataloader import WiderFaceDetectionDataset
 def main():
 
     dataset = WiderFaceDetectionDataset(
-        root="data",
         split="val",
         max_samples=5
     )
