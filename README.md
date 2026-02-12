@@ -121,6 +121,10 @@ Measures the proportion of correctly detected faces among all detected faces.
 Precision = TP / (TP + FP)
 ```
 
+- OpenCV: 0.6629
+- MTCNN: 0.9191
+- RetinaFace: 0.9911
+
 #### Recall
 
 Measures the proportion of correctly detected faces among all ground truth faces.
@@ -128,6 +132,10 @@ Measures the proportion of correctly detected faces among all ground truth faces
 ```
 Recall = TP / (TP + FN)
 ```
+
+- OpenCV: 0.065
+- MTCNN: 0.3326
+- RetinaFace: 0.3187
 
 #### Intersection over Union (IoU)
 
@@ -140,6 +148,10 @@ IoU = Area of Overlap / Area of Union
 #### Inference Time
 
 Average time required to process one image.
+
+- OpenCV: 0.0236
+- MTCNN: 0.1359
+- RetinaFace: 0.4555
 
 ### Running Detection Experiments
 
