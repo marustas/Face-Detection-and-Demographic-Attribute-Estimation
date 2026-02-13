@@ -4,7 +4,7 @@
 
 ## 1. Architectural Strategy: The Multitask Approach
 
-We implemented a Multitask CNN architecture which a consideration critical for business applications where hardware efficiency and inference speed are paramount.
+We implemented a Multitask CNN architecture which is a consideration critical for business applications where hardware efficiency and inference speed are paramount.
 
 We utilize a single MobileNetV2 backbone to act as a general feature extractor. This extracts shared features (eyes, nose, skin texture) before branching into two specialized "heads" for Age and Gender.
 
@@ -14,13 +14,10 @@ Our system is built on a modular microservices architecture, separating data loa
 
 ## 2. Technical Rigor & Optimization
 
-We implemented several high-level optimization techniques to ensure the model generalizes well to real-world environments:
+We implemented several high-level optimization techniques to ensure the model generalizes well to real-world environments.
+Instead of heavy Flatten layers, we utilized **Global Average Pooling** (`torch.mean(features, dim=[2, 3])`). This significantly reduces the total parameter count and prevents overfitting, which is critical for deployment on low-power hardware. We also opted for the **AdamW optimizer** over standard Adam. AdamW handles weight decay more effectively for deep CNNs, ensuring the model generalizes better to faces it has never seen in the UTKFace dataset.
 
-- Instead of heavy Flatten layers, we utilized **Global Average Pooling** (`torch.mean(features, dim=[2, 3])`). This significantly reduces the total parameter count and prevents overfitting, which is critical for deployment on low-power hardware.
-
-- We also opted for the **AdamW optimizer** over standard Adam. AdamW handles weight decay more effectively for deep CNNs, ensuring the model generalizes better to faces it has never seen in the UTKFace dataset.
-
-- Our architecture is designed for **Enterprise Compatibility**. By implementing "Safe Importing" guards, we ensure the system is deployable across any OS environment, from Windows-based POS systems to Linux-based cloud servers.
+By implementing "Safe Importing" guards, we ensure the system is deployable across any OS environment, from Windows-based POS systems to Linux-based cloud servers, thereby providing an architecture designed for **Enterprise Compatibility**.
 
 ## 3. Data Strategy: Multi-Dimensional Insight
 
