@@ -1,0 +1,1 @@
+from .age_gender_inference import predict

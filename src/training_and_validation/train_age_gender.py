@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 from tqdm import tqdm 
-from src.predictions import MultitaskCNN
+from src.training_and_validation import MultitaskCNN
 from src.datasets import build_dataloaders
 
 # --- 1. Configuration Constants ---
