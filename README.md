@@ -87,7 +87,7 @@ git clone https://github.com/marustas/Face-Detection-and-Demographic-Attribute-E
 cd Face-Detection-Demographic-Estimation
 
 # Install required dependencies
-pip install torch torchvision tqdm
+pip install torch torchvision Pillow tqdm
 ```
 
 ### 2. Data Preparation
