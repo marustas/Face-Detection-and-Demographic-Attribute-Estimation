@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from src.datasets.age_gender_dataloader import build_dataloaders
 
-DATASET_PATH = "data/raw"
+DATASET_PATH = "data/images"
 
 
 def main():
