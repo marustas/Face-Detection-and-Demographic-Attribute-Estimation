@@ -1,8 +1,171 @@
-# Demographic Attribute Estimation
+## Face Detection Module
+
+### Overview
+
+The face detection module is responsible for identifying and localizing human faces in images. This module serves as the first stage in the overall pipeline, enabling subsequent attribute prediction tasks such as age and gender classification.
+
+The goal of this component is to evaluate and compare multiple face detection approaches in terms of detection accuracy, robustness, and computational efficiency.
+
+The module supports multiple detectors and provides a unified interface for running experiments and benchmarking performance.
+
+---
+
+### Supported Face Detection Models
+
+The following face detection models are implemented and evaluated:
+
+#### 1. OpenCV Haar Cascade (Baseline)
+
+This is a classical computer vision approach based on Haar-like features and a cascade classifier.
+
+Characteristics:
+
+- Very fast inference
+- Low computational requirements
+- No GPU required
+- Lower detection accuracy compared to modern CNN-based methods
+- Used as a baseline for comparison
+
+Implementation:
+
+```
+src/models/face_detection/opencv.py
+```
+
+---
+
+#### 2. MTCNN (Multi-task Cascaded Convolutional Networks)
+
+This is a deep learning-based face detector consisting of a cascade of convolutional neural networks.
+
+Characteristics:
+
+- Higher accuracy than classical methods
+- Robust to moderate pose variations
+- Supports GPU acceleration
+- Good balance between speed and performance
+
+Implementation:
+
+```
+src/models/face_detection/mtcnn.py
+```
+
+Dependency:
+
+```
+facenet-pytorch
+```
+
+---
+
+#### 3. RetinaFace
+
+RetinaFace is a state-of-the-art single-stage face detector based on deep convolutional networks.
+
+Characteristics:
+
+- High detection accuracy
+- Robust to occlusion, pose variation, and difficult lighting conditions
+- Detects small and partially visible faces effectively
+- Higher computational cost compared to other detectors
+
+Implementation:
+
+```
+src/models/face_detection/retina.py
+```
+
+Dependency:
+
+```
+retina-face
+```
+
+---
+
+### Dataset: WIDER FACE
+
+Face detection performance is evaluated using the WIDER FACE dataset, which is a widely used benchmark for face detection.
+
+Dataset properties:
+
+- 32,000 images
+- 393,000 annotated faces
+- Real-world scenes with varying difficulty
+- Includes small, occluded, and crowded faces
+
+The dataset is automatically downloaded using torchvision and stored locally:
+
+```
+data/widerface/
+```
+
+Dataset loader implementation:
+
+```
+src/datasets/face_dataloader.py
+```
+
+---
+
+### Evaluation Metrics
+
+The following metrics are used to evaluate detector performance:
+
+#### Precision
+
+Measures the proportion of correctly detected faces among all detected faces.
+
+```
+Precision = TP / (TP + FP)
+```
+
+- OpenCV: 0.6629
+- MTCNN: 0.9191
+- RetinaFace: 0.9911
+
+#### Recall
+
+Measures the proportion of correctly detected faces among all ground truth faces.
+
+```
+Recall = TP / (TP + FN)
+```
+
+- OpenCV: 0.065
+- MTCNN: 0.3326
+- RetinaFace: 0.3187
+
+#### Intersection over Union (IoU)
+
+Measures overlap between predicted and ground truth bounding boxes.
+
+```
+IoU = Area of Overlap / Area of Union
+```
+
+#### Inference Time
+
+Average time required to process one image.
+
+- OpenCV: 0.0236
+- MTCNN: 0.1359
+- RetinaFace: 0.4555
+
+### Running Detection Experiments
+
+Detection experiments can be run using:
+
+```
+ python3 -m src.experiments.face_detector_experiments
+```
+
+## Demographic Attribute Estimation
 
 **Project Overview & Technical Considerations**
 
-## 1. Architectural Strategy: The Multitask Approach
+### 1. Architectural Strategy: The Multitask Approach
 
 We implemented a Multitask CNN architecture which is a consideration critical for business applications where hardware efficiency and inference speed are paramount.
 
@@ -12,14 +175,14 @@ This multitask setup achieves a **40% reduction in computational overhead** comp
 
 Our system is built on a modular microservices architecture, separating data loaders from prediction models to ensure easy integration into existing retail software APIs.
 
-## 2. Technical Rigor & Optimization
+### 2. Technical Rigor & Optimization
 
 We implemented several high-level optimization techniques to ensure the model generalizes well to real-world environments.
 Instead of heavy Flatten layers, we utilized **Global Average Pooling** (`torch.mean(features, dim=[2, 3])`). This significantly reduces the total parameter count and prevents overfitting, which is critical for deployment on low-power hardware. We also opted for the **AdamW optimizer** over standard Adam. AdamW handles weight decay more effectively for deep CNNs, ensuring the model generalizes better to faces it has never seen in the UTKFace dataset.
 
 By implementing "Safe Importing" guards, we ensure the system is deployable across any OS environment, from Windows-based POS systems to Linux-based cloud servers, thereby providing an architecture designed for **Enterprise Compatibility**.
 
-## 3. Data Strategy: Multi-Dimensional Insight
+### 3. Data Strategy: Multi-Dimensional Insight
 
 Our data pipeline handles age and gender as distinct, high-resolution data streams within the same batch, maintaining total data integrity.
 
@@ -27,29 +190,29 @@ Rather than predicting exact years, we utilize **Age Bins** (e.g., 0-18, 19-35).
 
 By solving spawning issues on Windows, we leverage multi-core CPUs for data pre-processing, reducing training time by up to **70%** on standard hardware.
 
-## 4. Hardware-Agnostic Scaling
+### 4. Hardware-Agnostic Scaling
 
 Our solution follows a **"Low-CapEx" entry strategy**. By starting with MobileNetV2, the system can run on low-cost Raspberry Pi or Android-based POS systems, minimizing the need for expensive hardware upgrades.
 
 For luxury retailers requiring maximum precision, our architecture allows us to "hot-swap" the backbone to ResNet50 on server-side GPU instances without changing the core software logic.
 
-## 5. Training Performance (15 Epochs)
+### 5. Training Performance (15 Epochs)
 
 The model was trained for 15 epochs, with the best iteration saved as `best_multitask_model.pth`.
 
-| Metric | Result | Target Benchmark |
-|--------|--------|------------------|
-| Gender Accuracy | 92.57% | > 90% (Exceeded) |
-| Age Class Accuracy | 64.24% | Professional Baseline |
+| Metric                 | Result | Target Benchmark             |
+| ---------------------- | ------ | ---------------------------- |
+| Gender Accuracy        | 92.57% | > 90% (Exceeded)             |
+| Age Class Accuracy     | 64.24% | Professional Baseline        |
 | Peak Combined Accuracy | 78.27% | Robust for Retail Deployment |
 
 ---
 
-## Technical Limitations and Future Considerations
+### Technical Limitations and Future Considerations
 
 While the current model achieves an **Enterprise-Ready Gender Accuracy of 92.57%**, there are specific areas identified for future optimization to enhance the system's reliability in high-stakes retail environments.
 
-### 1. Current Technical Constraints
+#### 1. Current Technical Constraints
 
 - **The Age-Gender Complexity Gap**: There is a notable performance delta between Gender Accuracy (92%) and Age Class Accuracy (64%). This stems from the fact that age estimation is a significantly more complex task than binary gender classification.
 
@@ -59,7 +222,7 @@ While the current model achieves an **Enterprise-Ready Gender Accuracy of 92.57%
 
 - **Dataset Categorization**: Relying on age bins (Life Stages) is highly effective for marketing, but it sacrifices granular Age MAE (Mean Absolute Error) precision that might be required for clinical or legal applications.
 
-### 2. The Development Roadmap (Future Work)
+#### 2. The Development Roadmap (Future Work)
 
 For better results, the following architectural and data-centric upgrades are proposed:
 
@@ -73,11 +236,11 @@ For better results, the following architectural and data-centric upgrades are pr
 
 ---
 
-## Getting Started
+### Getting Started
 
 Follow these steps to set up the environment and reproduce the demographic estimation results (92% Gender Accuracy).
 
-### 1. Installation & Environment Setup
+#### 1. Installation & Environment Setup
 
 Ensure you have **Python 3.9+ to 3.12** installed. It is recommended to use a virtual environment to manage dependencies.
 
@@ -90,7 +253,7 @@ cd Face-Detection-Demographic-Estimation
 pip install torch torchvision Pillow tqdm
 ```
 
-### 2. Data Preparation
+#### 2. Data Preparation
 
 Our data pipeline handles age and gender as distinct, high-resolution data streams. To prepare the dataset:
 
@@ -98,7 +261,7 @@ Our data pipeline handles age and gender as distinct, high-resolution data strea
 - Ensure filenames follow the UTKFace standard: `[age]_[gender]_[race]_[timestamp].jpg`.
 - The system utilizes a modular data loader that ignores the 'race' and 'timestamp' metadata to focus strictly on age and gender.
 
-### 3. Model Training
+#### 3. Model Training
 
 To train the model using the MobileNetV2 backbone and multitask architecture:
 
@@ -108,19 +271,19 @@ python train_age_gender.py
 
 **Technical Highlight**: The training script utilizes AdamW Regularization and Global Average Pooling to ensure high generalization on unseen faces. If the system detects potential RAM crashes due to the 24k+ image dataset, it is configured to utilize a streaming pipeline to manage memory efficiently.
 
-### 4. Reproducing Results
+#### 4. Reproducing Results
 
 Upon completion, the training script will save the highest-performing model as `best_multitask_model.pth`. You can expect results similar to our output:
 
-| Metric | Target | Achieved |
-|--------|--------|----------|
-| Gender Accuracy | > 90% | 92.57% |
-| Age Category Accuracy | High Reliability | 64.24% |
-| Inference Latency | Edge-Ready | ~12ms |
+| Metric                | Target           | Achieved |
+| --------------------- | ---------------- | -------- |
+| Gender Accuracy       | > 90%            | 92.57%   |
+| Age Category Accuracy | High Reliability | 64.24%   |
+| Inference Latency     | Edge-Ready       | ~12ms    |
 
 ---
 
-## Usage: Running Inference
+### Usage: Running Inference
 
 As shown in `inference_demo.py`, to run inference on a sample image, simply call:
 
