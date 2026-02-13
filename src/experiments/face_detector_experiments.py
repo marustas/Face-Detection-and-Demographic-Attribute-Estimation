@@ -5,6 +5,7 @@ from tqdm import tqdm
 from src.datasets.face_dataloader import WiderFaceDetectionDataset
 from src.models.face_detection import build_detector
 from src.utils.face_detection import evaluate_image
+from src.utils.face_detection import draw_face_box  # your visualization function
 
 
 def run_detection_experiment(
@@ -12,6 +13,8 @@ def run_detection_experiment(
     split: str = "val",
     max_samples: int = 500,
     iou_threshold: float = 0.5,
+    visualize: bool = False,
+    visualize_count: int = 5,
 ):
     print(f"\nDetector: {detector_name}")
 
@@ -26,6 +29,8 @@ def run_detection_experiment(
     total_fp = 0
     total_fn = 0
     total_time = 0.0
+
+    vis_counter = 0
 
     for i in tqdm(range(len(dataset))):
 
@@ -51,6 +56,21 @@ def run_detection_experiment(
         total_fp += fp
         total_fn += fn
 
+        # Visualization block
+        if visualize and vis_counter < visualize_count:
+
+            print(f"\nVisualizing sample {vis_counter + 1}")
+            print(f"Detected faces: {len(pred_boxes)}")
+            print(f"Ground truth faces: {len(gt_boxes)}")
+
+            draw_face_box(
+                image=image,
+                detections=detections,
+                title=f"{detector_name.upper()} Detection"
+            )
+
+            vis_counter += 1
+
     precision = total_tp / (total_tp + total_fp + 1e-6)
     recall = total_tp / (total_tp + total_fn + 1e-6)
     avg_time = total_time / len(dataset)
@@ -66,6 +86,7 @@ def run_detection_experiment(
         "avg_time": avg_time,
     }
 
+
 def main():
 
     detectors = ["opencv", "mtcnn", "retinaface"]
@@ -73,7 +94,9 @@ def main():
     for name in detectors:
         run_detection_experiment(
             detector_name=name,
-            max_samples=200
+            max_samples=200,
+            visualize=True,        # enable visualization
+            visualize_count=3      # show first 3 images
         )
 
 
