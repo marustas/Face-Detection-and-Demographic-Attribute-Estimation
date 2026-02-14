@@ -250,7 +250,7 @@ git clone https://github.com/marustas/Face-Detection-and-Demographic-Attribute-E
 cd Face-Detection-Demographic-Estimation
 
 # Install required dependencies
-pip install torch torchvision Pillow tqdm
+python -m pip install -r package_versions.txt
 ```
 
 #### 2. Data Preparation
@@ -285,10 +285,11 @@ Upon completion, the training script will save the highest-performing model as `
 
 ### Usage: Running Inference
 
-As shown in `inference_demo.py`, to run inference on a sample image, simply call:
+As shown in `main.py`, to run inference on a sample image, simply call:
 
 ```python
-predict("path_to_your_image.jpg")
+ python main.py --input path_to_your_image --detector face_detector_choice
 ```
 
-This can be done in a loop function that loads the images to be inferred from a folder and then call `predict()` with the path of each image to get the results.
+Where the --input argument can either be a path to a single image OR an image folder (supports .jpg, .jpeg, .png), 
+and --detector has the choices mtcnn, retinaface, and opencv. It defaults to mtcnn if not provided.
