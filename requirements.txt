@@ -1,4 +1,11 @@
-Detect faces in images/video and estimate at least two attributes per face (e.g., approximate age range, gender probability)
-Suggested datasets Your own short video (consented), or public samples (e.g., YouTube clips with permissive licenses)
-Check UTKFace for inspiration on Kaggle
-Requirements ?
+torch==2.2.2
+torchvision==0.17.2
+
+facenet-pytorch==2.6.0
+retina-face==0.0.17
+opencv-python==4.10.0.84
+
+numpy==1.26.4
+Pillow==10.2.0
+tqdm==4.66.4
+matplotlib==3.9.0
