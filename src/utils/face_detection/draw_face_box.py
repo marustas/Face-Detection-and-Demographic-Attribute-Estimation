@@ -1,15 +1,18 @@
-import matplotlib.pyplot as plt
 import cv2
+from PIL import Image
 
 
-def draw_face_box(image, detections, figsize=(8, 6)):
+def draw_face_box(image, detections, save_path=None):
     """
-    Draw bounding boxes around detected faces.
+    Draw bounding boxes around detected faces and optionally save the image with the bounding box.
 
     Parameters:
         image: numpy array (H, W, 3) uint8 RGB
         detections: list of dicts with key "bbox": [x1, y1, x2, y2]
-        figsize: tuple for matplotlib figure size
+        save_path: optional filesystem path to save the annotated image
+
+    Returns:
+        numpy array of the annotated image (uint8 RGB)
     """
 
     image_copy = image.copy()
@@ -32,7 +35,7 @@ def draw_face_box(image, detections, figsize=(8, 6)):
             2
         )
 
-    plt.figure(figsize=figsize)
-    plt.imshow(image_copy)
-    plt.axis("off")
-    plt.show()
+    if save_path:
+        Image.fromarray(image_copy).save(save_path)
+
+    return image_copy

@@ -39,7 +39,7 @@ transform = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-def predict(image_path):
+def predict(image_path, verbose=False):
     img = Image.open(image_path).convert('RGB')
     img_tensor = transform(img).unsqueeze(0).to(DEVICE)
 
@@ -52,6 +52,12 @@ def predict(image_path):
         # Process Age (Logits -> Argmax)
         age_idx = torch.argmax(age_out, dim=1).item()
 
-    print(f"--- Prediction Results ---")
-    print(f"Gender: {GENDER_MAP[gender_idx]}")
-    print(f"Life Stage: {get_age_label(age_idx, age_bins)} years old")
+    gender_label = GENDER_MAP[gender_idx]
+    age_label = get_age_label(age_idx, age_bins)
+
+    if verbose:
+        print(f"--- Prediction Results ---")
+        print(f"Gender: {gender_label}")
+        print(f"Life Stage: {age_label} years old")
+
+    return {"gender": gender_label, "age": age_label}

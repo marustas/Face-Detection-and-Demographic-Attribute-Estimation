@@ -33,13 +33,13 @@ def main():
         help="Face detector to use"
     )
     parser.add_argument(
-        "--show",
-        action="store_true",
-        help="Show image with drawn bounding boxes"
+        "--output-dir",
+        default="results/annotated",
+        help="Directory to save annotated images"
     )
     parser.add_argument(
         "--save-crops-dir",
-        default=None,
+        default="results/cropped_faces",
         help="Optional directory to save cropped face images"
     )
 
@@ -65,7 +65,6 @@ def main():
 
     # 2. Initialize the Factory Detector once for efficiency
     detector = build_detector(args.detector)
-    print(f"--- System Initialized: Processing {len(image_files)} image(s) with {args.detector} ---")
 
     # 3. Process the Batch
     for img_path in image_files:
@@ -79,10 +78,6 @@ def main():
             print(f" > No faces detected in {os.path.basename(img_path)}.")
             continue
 
-        # Optionally show bounding boxes (Visual verification)
-        if args.show:
-            draw_face_box(image_rgb, detections)
-
         # 4. Crop faces with Strategic Padding (Critical for Age feature extraction)
         crops = crop_faces(image_rgb, detections, padding=0.2)
 
@@ -94,18 +89,27 @@ def main():
             save_dir = temp_dir_ctx.name
         Path(save_dir).mkdir(parents=True, exist_ok=True)
 
-        # 6. Save crops and run Polymorphic Prediction
-        for idx, crop in enumerate(crops, start=1):
-            # Unique filename for the audit trail
-            base_name = Path(img_path).stem
-            crop_filename = f"face_{idx}_{base_name}.jpg"
+        # 6. For each face: predict labels and save annotated full image
+        annotated_dir = Path(args.output_dir)
+        annotated_dir.mkdir(parents=True, exist_ok=True)
+
+        base_name = Path(img_path).stem
+
+        for idx, (crop, det) in enumerate(zip(crops, detections), start=1):
+            # Save crop (optional audit trail)
+            crop_filename = f"{base_name}_face{idx}.jpg"
             crop_path = os.path.join(save_dir, crop_filename)
-            
             Image.fromarray(crop).save(crop_path)
-            
-            # This call uses the predict() with confidence scores
-            print(f"  [Face #{idx} Analysis]")
-            predict(crop_path)
+
+            # Predict age/gender for this crop (no console output)
+            labels = predict(crop_path, verbose=False)
+            gender = labels["gender"]
+            age = labels["age"]
+
+            # Annotate full image with only this face's box and save
+            out_filename = f"{base_name}_face{idx}_{gender}_{age}.jpg"
+            out_path = annotated_dir / out_filename
+            draw_face_box(image_rgb, [det], save_path=str(out_path))
 
         # Cleanup temp dir for this specific image if persistent saving was disabled
         if temp_dir_ctx is not None:
